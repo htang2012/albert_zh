@@ -41,7 +41,7 @@ class BertSim:
         self.batch_size = batch_size
         self.estimator = None
         self.processor = SimProcessor()
-        tf.logging.set_verbosity(tf.logging.INFO)
+        tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
 
 
@@ -58,9 +58,9 @@ class BertSim:
         def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
             from tensorflow.python.estimator.model_fn import EstimatorSpec
 
-            tf.logging.info("*** Features ***")
+            tf.compat.v1.logging.info("*** Features ***")
             for name in sorted(features.keys()):
-                tf.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
+                tf.compat.v1.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
 
             input_ids = features["input_ids"]
             input_mask = features["input_mask"]
@@ -73,20 +73,20 @@ class BertSim:
                 bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
                 num_labels, use_one_hot_embeddings)
 
-            tvars = tf.trainable_variables()
+            tvars = tf.compat.v1.trainable_variables()
             initialized_variable_names = {}
 
             if init_checkpoint:
                 (assignment_map, initialized_variable_names) \
                     = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
-                tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+                tf.compat.v1.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
-            tf.logging.info("**** Trainable Variables ****")
+            tf.compat.v1.logging.info("**** Trainable Variables ****")
             for var in tvars:
                 init_string = ""
                 if var.name in initialized_variable_names:
                     init_string = ", *INIT_FROM_CKPT*"
-                tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
+                tf.compat.v1.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
                                 init_string)
             output_spec = EstimatorSpec(mode=mode, predictions=probabilities)
 
@@ -219,14 +219,14 @@ class BertSim:
 
         label_id = label_map[example.label]
         if ex_index < 5:
-            tf.logging.info("*** Example ***")
-            tf.logging.info("guid: %s" % (example.guid))
-            tf.logging.info("tokens: %s" % " ".join(
+            tf.compat.v1.logging.info("*** Example ***")
+            tf.compat.v1.logging.info("guid: %s" % (example.guid))
+            tf.compat.v1.logging.info("tokens: %s" % " ".join(
                 [tokenization.printable_text(x) for x in tokens]))
-            tf.logging.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
-            tf.logging.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
-            tf.logging.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
-            tf.logging.info("label: %s (id = %d)" % (example.label, label_id))
+            tf.compat.v1.logging.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
+            tf.compat.v1.logging.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
+            tf.compat.v1.logging.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
+            tf.compat.v1.logging.info("label: %s (id = %d)" % (example.label, label_id))
 
         feature = InputFeatures(
             input_ids=input_ids,

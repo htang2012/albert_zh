@@ -32,12 +32,12 @@ import lamb_optimizer_google as lamb_optimizer
 def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu,
                      optimizer="adamw", poly_power=1.0, start_warmup_step=0):
   """Creates an optimizer training op."""
-  global_step = tf.train.get_or_create_global_step()
+  global_step = tf.compat.v1.train.get_or_create_global_step()
 
   learning_rate = tf.constant(value=init_lr, shape=[], dtype=tf.float32)
 
   # Implements linear decay of the learning rate.
-  learning_rate = tf.train.polynomial_decay(
+  learning_rate = tf.compat.v1.train.polynomial_decay(
       learning_rate,
       global_step,
       num_train_steps,
@@ -49,7 +49,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu,
   # num_warmup_steps, the learning rate will be
   # `(global_step - start_warmup_step)/num_warmup_steps * init_lr`.
   if num_warmup_steps:
-    tf.logging.info("++++++ warmup starts at step " + str(start_warmup_step)
+    tf.compat.v1.logging.info("++++++ warmup starts at step " + str(start_warmup_step)
                     + ", for " + str(num_warmup_steps) + " steps ++++++")
     global_steps_int = tf.cast(global_step, tf.int32)
     start_warm_int = tf.constant(start_warmup_step, dtype=tf.int32)
@@ -74,7 +74,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu,
   # is 3e-5, 4e-5 or 5e-5. For LAMB, the users can use 3e-4, 4e-4,or 5e-4 for a
   # batch size of 64 in the finetune.
   if optimizer == "adamw":
-    tf.logging.info("using adamw")
+    tf.compat.v1.logging.info("using adamw")
     optimizer = AdamWeightDecayOptimizer(
         learning_rate=learning_rate,
         weight_decay_rate=0.01,
@@ -83,7 +83,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu,
         epsilon=1e-6,
         exclude_from_weight_decay=["LayerNorm", "layer_norm", "bias"])
   elif optimizer == "lamb":
-    tf.logging.info("using lamb")
+    tf.compat.v1.logging.info("using lamb")
     optimizer = lamb_optimizer.LAMBOptimizer(
         learning_rate=learning_rate,
         weight_decay_rate=0.01,
@@ -97,7 +97,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu,
   if use_tpu:
     optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
 
-  tvars = tf.trainable_variables()
+  tvars = tf.compat.v1.trainable_variables()
   grads = tf.gradients(loss, tvars)
 
   # This is how the model was pre-trained.
@@ -145,13 +145,13 @@ class AdamWeightDecayOptimizer(tf.train.Optimizer):
 
       param_name = self._get_variable_name(param.name)
 
-      m = tf.get_variable(
+      m = tf.compat.v1.get_variable(
           name=six.ensure_str(param_name) + "/adam_m",
           shape=param.shape.as_list(),
           dtype=tf.float32,
           trainable=False,
           initializer=tf.zeros_initializer())
-      v = tf.get_variable(
+      v = tf.compat.v1.get_variable(
           name=six.ensure_str(param_name) + "/adam_v",
           shape=param.shape.as_list(),
           dtype=tf.float32,

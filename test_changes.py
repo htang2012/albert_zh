@@ -19,7 +19,7 @@ def get_total_parameters():
     :return:
     """
     total_parameters = 0
-    for variable in tf.trainable_variables():
+    for variable in tf.compat.v1.trainable_variables():
         # shape is an array of tf.Dimension
         shape = variable.get_shape()
         # print(shape)

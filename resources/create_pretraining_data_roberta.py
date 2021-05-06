@@ -100,7 +100,7 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
     """Create TF example files from `TrainingInstance`s."""
     writers = []
     for output_file in output_files:
-        writers.append(tf.python_io.TFRecordWriter(output_file))
+        writers.append(tf.io.TFRecordWriter.TFRecordWriter(output_file))
 
     writer_index = 0
 
@@ -149,8 +149,8 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
         total_written += 1
 
         if inst_index < 20:
-            tf.logging.info("*** Example ***")
-            tf.logging.info("tokens: %s" % " ".join(
+            tf.compat.v1.logging.info("*** Example ***")
+            tf.compat.v1.logging.info("tokens: %s" % " ".join(
                 [tokenization.printable_text(x) for x in instance.tokens]))
 
             for feature_name in features.keys():
@@ -160,13 +160,13 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
                     values = feature.int64_list.value
                 elif feature.float_list.value:
                     values = feature.float_list.value
-                tf.logging.info(
+                tf.compat.v1.logging.info(
                     "%s: %s" % (feature_name, " ".join([str(x) for x in values])))
 
     for writer in writers:
         writer.close()
 
-    tf.logging.info("Wrote %d total instances", total_written)
+    tf.compat.v1.logging.info("Wrote %d total instances", total_written)
 
 
 def create_int_feature(values):
@@ -193,7 +193,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
     # that the "next sentence prediction" task doesn't span between documents.
     print("create_training_instances.started...")
     for input_file in input_files:
-        with tf.gfile.GFile(input_file, "r") as reader:
+        with tf.compat.v1.gfile.GFile(input_file, "r") as reader:
             while True:
                 line = tokenization.convert_to_unicode(reader.readline().replace("<eop>",""))# .replace("”","")) # 将<eop>、”替换掉。
                 if not line:

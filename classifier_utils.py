@@ -106,7 +106,7 @@ class DataProcessor(object):
   @classmethod
   def _read_tsv(cls, input_file, delimiter="\t", quotechar=None):
     """Reads a tab separated value file."""
-    with tf.gfile.Open(input_file, "r") as f:
+    with tf.compat.v1.gfile.Open(input_file, "r") as f:
       reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar)
       lines = []
       for line in reader:
@@ -116,7 +116,7 @@ class DataProcessor(object):
   @classmethod
   def _read_txt(cls, input_file):
     """Reads a tab separated value file."""
-    with tf.gfile.Open(input_file, "r") as f:
+    with tf.compat.v1.gfile.Open(input_file, "r") as f:
       reader = f.readlines()
       lines = []
       for line in reader:
@@ -126,7 +126,7 @@ class DataProcessor(object):
   @classmethod
   def _read_json(cls, input_file):
     """Reads a tab separated value file."""
-    with tf.gfile.Open(input_file, "r") as f:
+    with tf.compat.v1.gfile.Open(input_file, "r") as f:
       reader = f.readlines()
       lines = []
       for line in reader:
@@ -386,7 +386,7 @@ class CMNLIProcessor(DataProcessor):
   def _create_examples_json(self, file_name, set_type):
     """Creates examples for the training and dev sets."""
     examples = []
-    lines = tf.gfile.Open(file_name, "r")
+    lines = tf.compat.v1.gfile.Open(file_name, "r")
     index = 0
     for line in lines:
       line_obj = json.loads(line)
